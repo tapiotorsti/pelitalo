@@ -1,7 +1,7 @@
 <?php
 
 // Siistitään polku urlin alusta ja mahdolliset parametrit url
-//Siistimisen jälkeen osoite /~ttapiola/lanify/tapahtuma?id=1 on
+// Siistimisen jälkeen osoite /~ttapiola/lanify/tapahtuma?id=1 on
 // lyhentynyt muotoon tapahtuma
 $request = str_replace('/~ttapiola/lanify','',$_SERVER['REQUEST_URI']);
 $request = strtok($request, '?');
