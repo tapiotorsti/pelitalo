@@ -5,9 +5,9 @@
     <meta charset="UTF-8">    
   </head>
   <body>
-    <header>
-      <h1>lanify</h1>
-    </header>
+  <header>
+      <h1><a href="<?=BASEURL?>">lanify</a></h1>
+  </header>
     <section>
       <?=$this->section('content')?>
     </section>
