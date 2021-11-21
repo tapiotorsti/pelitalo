@@ -35,15 +35,20 @@ function lisaaTili($formdata) {
     }
   }
 
-  // Tarkistetaan, että sähköpostiosoite on määritelty ja se on
+    // Tarkistetaan, että sähköpostiosoite on määritelty ja se on
   // oikeassa muodossa.
   if (!isset($formdata['email']) || !$formdata['email']) {
     $error['email'] = "Anna sähköpostiosoitteesi.";
   } else {
     if (!filter_var($formdata['email'], FILTER_VALIDATE_EMAIL)) {
       $error['email'] = "Sähköpostiosoite on virheellisessä muodossa.";
+    } else {
+      if (haeHenkiloSahkopostilla($formdata['email'])) {
+        $error['email'] = "Sähköpostiosoite on jo käytössä.";
+      }
     }
   }
+
 
   // Tarkistetaan, että kummatkin salasanat on annettu ja että
   // ne ovat keskenään samat.
