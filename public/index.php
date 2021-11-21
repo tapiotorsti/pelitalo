@@ -1,18 +1,17 @@
 <?php
 
-// Suoritetaan projektin alustusskripti.
-require_once '../src/init.php';
+  // Suoritetaan projektin alustusskripti.
+  require_once '../src/init.php';
 
-// Siistitään polku urlin alusta ja mahdolliset parametrit url
-// Siistimisen jälkeen osoite /~ttapiola/lanify/tapahtuma?id=1 on
-// lyhentynyt muotoon tapahtuma
-$request = str_replace($config['urls']['baseUrl'],'',$_SERVER['REQUEST_URI']);
-$request = strtok($request, '?');
+  // Siistitään polku urlin alusta ja mahdolliset parametrit urlin lopusta.
+  // Siistimisen jälkeen osoite /~koodaaja/lanify/tapahtuma?id=1 on 
+  // lyhentynyt muotoon /tapahtuma.
+  $request = str_replace($config['urls']['baseUrl'],'',$_SERVER['REQUEST_URI']);
+  $request = strtok($request, '?');
 
-    // Luodaan uusi Plates-olio ja kytketään se sovelluksen sivupohjiin.
-    $templates = new League\Plates\Engine(TEMPLATE_DIR);
-
-
+  // Luodaan uusi Plates-olio ja kytketään se sovelluksen sivupohjiin.
+  $templates = new League\Plates\Engine(TEMPLATE_DIR); 
+  
   // Selvitetään mitä sivua on kutsuttu ja suoritetaan sivua vastaava
   // käsittelijä.
   switch ($request) {
@@ -32,22 +31,22 @@ $request = strtok($request, '?');
       }
       break;
     case '/lisaa_tili':
-      case '/lisaa_tili':
-        if (isset($_POST['laheta'])) {
-          $formdata = cleanArrayData($_POST);
-          require_once MODEL_DIR . 'henkilo.php';
-          $salasana = password_hash($formdata['salasana1'], PASSWORD_DEFAULT);
-          $id = lisaaHenkilo($formdata['nimi'],$formdata['email'],$formdata['discord'],$salasana);
-          echo "Tili on luotu tunnisteella $id";
+      if (isset($_POST['laheta'])) {
+        $formdata = cleanArrayData($_POST);
+        require_once CONTROLLER_DIR . 'tili.php';
+        $tulos = lisaaTili($formdata);
+        if ($tulos['status'] == "200") {
+          echo "Tili on luotu tunnisteella $tulos[id]";
           break;
+        }
+        echo $templates->render('lisaa_tili', ['formdata' => $formdata, 'error' => $tulos['error']]);
+        break;
       } else {
-        echo $templates->render('lisaa_tili');
+        echo $templates->render('lisaa_tili', ['formdata' => [], 'error' => []]);
         break;
       }
     default:
       echo $templates->render('notfound');
-  }    
+  }
 
-
-
-?>
+?> 
