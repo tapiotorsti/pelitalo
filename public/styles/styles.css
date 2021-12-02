@@ -95,5 +95,16 @@
   .info a {
     color: #975579;
   }
+
+  header {
+    background-color: #B8BAC8;
+    padding: 1rem 1.5rem;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.8rem;
+  }
+  
   
   
