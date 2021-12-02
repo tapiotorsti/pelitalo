@@ -2,7 +2,7 @@
 
 // Hyödynnetään PDO-käärintäluokkaa, joka mahdollistaa SQL-kyselyiden
 // suorittamisen yhden PDO-yhteyden kautta.
-// Luokkakoodi on kopioitu osoitteesta https://phpdelusions.net/wrapper
+// Koodi on kopioitu osoitteesta https://phpdelusions.net/wrapper
 
 // Viedään config-tiedoissa määritellyt tietokantaasetukset vakioiksi.
 define('DB_HOST', $config['db']['host']);
@@ -44,4 +44,4 @@ class DB
         $stmt->execute($args);
         return $stmt;
     }
-}            
+}           

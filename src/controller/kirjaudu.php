@@ -6,8 +6,6 @@
   require_once(MODEL_DIR . 'henkilo.php');
   $tiedot = haeHenkilo($email);
 
-  ... funktion loppu on samanlainen
-
     // Tarkistetaan ensin löytyikö käyttäjä. Jos löytyi, niin
     // tarkistetaan täsmäävätkö salasanat.
     if ($tiedot && password_verify($salasana, $tiedot['salasana'])) {
