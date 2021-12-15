@@ -2,20 +2,20 @@
 
   require_once HELPERS_DIR . 'DB.php';
 
-  function haeIlmoittautuminen($idhenkilo,$idtapahtuma) {
-    return DB::run('SELECT * FROM ilmoittautuminen WHERE idhenkilo = ? AND idtapahtuma = ?',
-                   [$idhenkilo, $idtapahtuma])->fetchAll();
+  function haeIlmoittautuminen($idkayttaja,$idpelitapahtuma) {
+    return DB::run('SELECT * FROM osallistuminen WHERE idkayttaja = ? AND idpelitapahtuma = ?',
+                   [$idkayttaja, $idpelitapahtuma])->fetchAll();
   }
 
-  function lisaaIlmoittautuminen($idhenkilo,$idtapahtuma) {
-    DB::run('INSERT INTO ilmoittautuminen (idhenkilo, idtapahtuma) VALUE (?,?)',
-            [$idhenkilo, $idtapahtuma]);
+  function lisaaIlmoittautuminen($idkayttaja,$idpelitapahtuma) {
+    DB::run('INSERT INTO osallistuminen (idkayttaja, idpelitapahtuma) VALUE (?,?)',
+            [$idkayttaja, $idpelitapahtuma]);
     return DB::lastInsertId();
   }
 
-  function poistaIlmoittautuminen($idhenkilo, $idtapahtuma) {
-    return DB::run('DELETE FROM ilmoittautuminen  WHERE idhenkilo = ? AND idtapahtuma = ?',
-                   [$idhenkilo, $idtapahtuma])->rowCount();
+  function poistaIlmoittautuminen($idkayttaja, $idpelitapahtuma) {
+    return DB::run('DELETE FROM osallistuminen  WHERE idkayttaja = ? AND idpelitapahtuma = ?',
+                   [$idkayttaja, $idpelitapahtuma])->rowCount();
   }
 
 ?>

@@ -8,7 +8,7 @@ $config = array(
      "host" => "localhost"
   ),
   "urls" => array(
-      "baseUrl" => "/~ttapiola/lanify"
+      "baseUrl" => "/~ttapiola/pelitalo"
   )
 );
 

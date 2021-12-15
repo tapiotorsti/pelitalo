@@ -8,11 +8,14 @@
 
   // Haetaan kirjautuneen käyttäjän tiedot.
   if (isset($_SESSION['user'])) {
-    require_once MODEL_DIR . 'henkilo.php';
+    require_once MODEL_DIR . 'kayttaja.php';
     $loggeduser = haeHenkilo($_SESSION['user']);
   } else {
     $loggeduser = NULL;
   }
+
+  
+ 
 
 
   // Siistitään polku urlin alusta ja mahdolliset parametrit urlin lopusta.
@@ -28,23 +31,23 @@
   // käsittelijä.
   switch ($request) {
     case '/':
-    case '/tapahtumat':
-      require_once MODEL_DIR . 'tapahtuma.php';
-      $tapahtumat = haeTapahtumat();
-      echo $templates->render('tapahtumat',['tapahtumat' => $tapahtumat]);
+    case '/pelitapahtumat':
+      require_once MODEL_DIR . 'pelitapahtuma.php';
+      $pelitapahtumat = haeTapahtumat();
+      echo $templates->render('pelitapahtumat',['pelitapahtumat' => $pelitapahtumat]);
       break;
-    case '/tapahtuma':
-      require_once MODEL_DIR . 'tapahtuma.php';
+    case '/pelitapahtuma':
+      require_once MODEL_DIR . 'pelitapahtuma.php';
       require_once MODEL_DIR . 'ilmoittautuminen.php';
-      $tapahtuma = haeTapahtuma($_GET['id']);
-      if ($tapahtuma) {
+      $pelitapahtuma = haeTapahtuma($_GET['id']);
+      if ($pelitapahtuma) {
         if ($loggeduser) {
-          $ilmoittautuminen = haeIlmoittautuminen($loggeduser['idhenkilo'],$tapahtuma['idtapahtuma']);
+          $osallistuminen = haeIlmoittautuminen($loggeduser['idkayttaja'],$pelitapahtuma['idpelitapahtuma']);
         } else {
-          $ilmoittautuminen = NULL;
+          $osallistuminen = NULL;
         }
-        echo $templates->render('tapahtuma',['tapahtuma' => $tapahtuma,
-                                             'ilmoittautuminen' => $ilmoittautuminen,
+        echo $templates->render('pelitapahtuma',['pelitapahtuma' => $pelitapahtuma,
+                                             'osallistuminen' => $osallistuminen,
                                              'loggeduser' => $loggeduser]);
       } else {
         echo $templates->render('tapahtumanotfound');
@@ -53,32 +56,54 @@
     case '/ilmoittaudu':
       if ($_GET['id']) {
         require_once MODEL_DIR . 'ilmoittautuminen.php';
-        $idtapahtuma = $_GET['id'];
+        $idpelitapahtuma = $_GET['id'];
         if ($loggeduser) {
-          lisaaIlmoittautuminen($loggeduser['idhenkilo'],$idtapahtuma);
+          lisaaIlmoittautuminen($loggeduser['idkayttaja'],$idpelitapahtuma);
         }
-        header("Location: tapahtuma?id=$idtapahtuma");
+        header("Location: pelitapahtuma?id=$idpelitapahtuma");
       } else {
-        header("Location: tapahtumat");
+        header("Location: pelitapahtumat");
       }
       break;
     case '/peru':
       if ($_GET['id']) {
         require_once MODEL_DIR . 'ilmoittautuminen.php';
-        $idtapahtuma = $_GET['id'];
+        $idpelitapahtuma = $_GET['id'];
         if ($loggeduser) {
-          poistaIlmoittautuminen($loggeduser['idhenkilo'],$idtapahtuma);
+          poistaIlmoittautuminen($loggeduser['idkayttaja'],$idpelitapahtuma);
         }
-        header("Location: tapahtuma?id=$idtapahtuma");
+        header("Location: pelitapahtuma?id=$idpelitapahtuma");
       } else {
-        header("Location: tapahtumat");
+        header("Location:pelitapahtumat");
       }
       break;
-    case '/lisaa_tili':
-      if (isset($_POST['laheta'])) {
-        $formdata = cleanArrayData($_POST);
-        require_once CONTROLLER_DIR . 'tili.php';
-        $tulos = lisaaTili($formdata);
+    case '/pelihuoneet':
+      require_once MODEL_DIR . 'pelihuone.php';
+      $pelihuoneet = haePelihuoneet();
+      echo $templates->render('pelihuoneet',['pelihuoneet' => $pelihuoneet]);
+      break; 
+      case '/pelihuone':
+        require_once MODEL_DIR . 'pelihuone.php';
+        require_once MODEL_DIR . 'ilmoittautuminen.php';
+        $pelihuone = haePelihuone($_GET['id']);
+        if ($pelihuone) {
+          if ($loggeduser) {
+            $osallistuminen = haeIlmoittautuminen($loggeduser['idkayttaja'],$pelihuone['idpelihuone']);
+          } else {
+            $osallistuminen = NULL;
+          }
+          echo $templates->render('pelihuone',['pelihuone' => $pelihuone,
+                                               'osallistuminen' => $osallistuminen,
+                                               'loggeduser' => $loggeduser]);
+        } else {
+          echo $templates->render('tapahtumanotfound');
+        }
+        break;
+      case '/lisaa_tili':
+        if (isset($_POST['laheta'])) {
+          $formdata = cleanArrayData($_POST);
+          require_once CONTROLLER_DIR . 'tili.php';
+          $tulos = lisaaTili($formdata,$config['urls']['baseUrl']);  
         if ($tulos['status'] == "200") {
           echo $templates->render('tili_luotu', ['formdata' => $formdata]);
           break;

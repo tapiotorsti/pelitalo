@@ -3,8 +3,9 @@
   function tarkistaKirjautuminen($email="", $salasana="") {
 
   // Haetaan käyttäjän tiedot sen sähköpostiosoitteella.
-  require_once(MODEL_DIR . 'henkilo.php');
+  require_once(MODEL_DIR . 'kayttaja.php');
   $tiedot = haeHenkilo($email);
+  //$admin = haeAdmin($admin);
 
     // Tarkistetaan ensin löytyikö käyttäjä. Jos löytyi, niin
     // tarkistetaan täsmäävätkö salasanat.
@@ -12,8 +13,12 @@
       return true;
     }
 
+    elseif ($tiedot && password_verify($salasana, $tiedot['salasana'])) {
+      return true;
+    }
+
     // Käyttäjää ei löytynyt tai salasana oli väärin. 
-    return false;
+    else {return false; }
 
   }
 

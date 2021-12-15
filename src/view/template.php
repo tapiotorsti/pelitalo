@@ -1,13 +1,13 @@
 <!DOCTYPE html>
 <html lang="fi">
   <head>
-    <title>lanify - <?=$this->e($title)?></title>
+    <title>Pelitalo - <?=$this->e($title)?></title>
     <meta charset="UTF-8">
     <link href="styles/styles.css" rel="stylesheet">    
   </head>
   <body>
   <header>
-      <h1><a href="<?=BASEURL?>">lanify</a></h1>
+      <h1><a href="<?=BASEURL?>">Pelitalo</a> </h1>
       <div class="profile">
         <?php
           if (isset($_SESSION['user'])) {
@@ -24,7 +24,7 @@
     </section>
     <footer>
       <hr>
-      <div>lanify by Kurpitsa</div>
+      <div>pelitalo by Ttapiola</div>
     </footer>
   </body>
 </html>

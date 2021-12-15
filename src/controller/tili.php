@@ -1,10 +1,10 @@
 <?php
 
-function lisaaTili($formdata) {
+function lisaaTili($formdata, $baseurl='') {
 
   // Tuodaan henkilo-mallin funktiot, joilla voidaan lisätä
   // henkilön tiedot tietokantaan.
-  require_once(MODEL_DIR . 'henkilo.php');
+  require_once(MODEL_DIR . 'kayttaja.php');
 
   // Alustetaan virhetaulukko, joka palautetaan lopuksi joko
   // tyhjänä tai virheillä täytettynä.
@@ -25,13 +25,13 @@ function lisaaTili($formdata) {
     }
   }
 
-  // Tarkistetaan, että discord-tunnus on määritelty ja se on
-  // muodossa tunnus#0000.
-  if (!isset($formdata['discord']) || !$formdata['discord']) {
-    $error['discord'] = "Anna discord-tunnuksesi muodossa tunnus#0000.";
+  // Puhelinnumeron lisääminen ja tarkastaminen
+  
+  if (!isset($formdata['puhnro']) || !$formdata['puhnro']) {
+    $error['puhnro'] = "Puhelinnumero ilman välilyöntejä (esim. 0401234567)";
   } else {
-    if (!preg_match("/^.+#\d{4}$/",$formdata['discord'])) {
-      $error['discord'] = "Discord-tunnuksesi muoto on virheellinen.";
+    if (!preg_match("/^[0-9]{10}+$/",$formdata['puhnro'])) {
+      $error['puhnro'] = "Puhelinnumerosi on virheellinen.";
     }
   }
 
@@ -70,12 +70,12 @@ function lisaaTili($formdata) {
     // Salataan salasana myös samalla.
     $nimi = $formdata['nimi'];
     $email = $formdata['email'];
-    $discord = $formdata['discord'];
+    $puhnro = $formdata['puhnro'];
     $salasana = password_hash($formdata['salasana1'], PASSWORD_DEFAULT);
 
     // Lisätään henkilö tietokantaan. Jos lisäys onnistui,
     // tulee palautusarvona lisätyn henkilön id-tunniste.
-    $idhenkilo = lisaaHenkilo($nimi,$email,$discord,$salasana);
+    $idkayttaja = lisaaHenkilo($nimi,$email,$puhnro,$salasana);
 
     // Palautetaan JSON-tyyppinen taulukko, jossa:
     //  status   = Koodi, joka kertoo lisäyksen onnistumisen.
@@ -94,12 +94,23 @@ function lisaaTili($formdata) {
     // Jos idhenkilo-muuttujassa on positiivinen arvo,
     // onnistui rivin lisääminen. Muuten lisäämisessä ilmeni
     // ongelma.
-    if ($idhenkilo) {
-      return [
-        "status" => 200,
-        "id"     => $idhenkilo,
-        "data"   => $formdata
-      ];
+    if ($idkayttaja) {
+      // Luodaan käyttäjälle aktivointiavain ja muodostetaan
+      // aktivointilinkki.
+      require_once(HELPERS_DIR . "secret.php");
+      $avain = generateActivationCode($email);
+      $url = 'https://' . $_SERVER['HTTP_HOST'] . $baseurl . "/vahvista?key=$avain";
+      // Päivitetään aktivointiavain tietokantaan ja lähetetään
+      // käyttäjälle sähköpostia. Jos tämä onnistui, niin palautetaan
+      // palautusarvona tieto tilin onnistuneesta luomisesta. Muuten
+      // palautetaan virhekoodi, joka ilmoittaa, että jokin
+      // lisäyksessä epäonnistui.
+      if (paivitaVahvavain($email,$avain) && lahetaVahvavain($email,$url)) {
+        return [
+          "status" => 200,
+          "id"     => $idkayttaja,
+          "data"   => $formdata
+        ];
     } else {
       return [
         "status" => 500,
@@ -118,5 +129,25 @@ function lisaaTili($formdata) {
 
   }
 }
+}
 
+
+//funktio lähettää esimääritellyn tekstin annettuun sähköpostiosoitteeseen. 
+//Funktio sisällyttää tekstin keskelle annetun url-osoitteen, joka on käyttäjälle muodostettu aktivointilinkki. 
+//Funktio palauttaa totuusarvon tosi, jos sähköposti hyväksyttiin lähettäväksi. 
+//Huomaa, että tämä ei välttämättä tarkoita sitä, että sähköposti on toimitettu perille.
+function lahetaVahvavain($email,$url) {
+  $message = "Hei!\n\n" . 
+             "Olet rekisteröitynyt Pelitalo-palveluun tällä\n" . 
+             "sähköpostiosoitteella. Klikkaamalla alla olevaa\n" . 
+             "linkkiä vahvistat käyttämäsi sähköpostiosoitteen\n" .
+             "ja pääset käyttämään Pelitalo-palvelua.\n\n" . 
+             "$url\n\n" .
+             "Jos et ole rekisteröitynyt Pelitalo palveluun, niin\n" . 
+             "silloin tämä sähköposti on tullut sinulle\n" .
+             "vahingossa. Siinä tapauksessa ole hyvä ja\n" .
+             "poista tämä viesti.\n\n".
+             "Terveisin, Pelitalo-palvelu";
+  return mail($email,'Pelitalo-tilin aktivointilinkki',$message);
+}
 ?>
